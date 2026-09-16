@@ -6,6 +6,8 @@ then scan a QR → see verified blood group, allergies, conditions,
 medications, and emergency contact — no login needed for the responder.
 Full profile management stays behind your own sign-in.
 
+**🔗 Live demo:** https://medivault-roan.vercel.app
+
 ## Workflow — how a user moves through the app
 
 ```mermaid
