@@ -8,6 +8,19 @@ Full profile management stays behind your own sign-in.
 
 **🔗 Live demo:** https://medivault-roan.vercel.app
 
+## Tech Stack
+
+| Layer          | Technology |
+| -------------- | ---------- |
+| **Frontend**   | React + Vite |
+| **Styling**    | Tailwind CSS |
+| **Storage**    | Browser `localStorage` (accounts, family profiles, sessions) |
+| **Auth**       | Password hashing via SHA-256 (client-side) |
+| **QR Code**    | Generated client-side, encodes emergency data + link |
+| **AI Summary** | Anthropic API, called via a Vercel serverless function (`api/summarize.js`) |
+| **PWA**        | `manifest.json` + service worker — installable on Android/iOS |
+| **Hosting**    | Vercel |
+
 ## Workflow — how a user moves through the app
 
 ```mermaid
@@ -119,24 +132,6 @@ telling you the key isn't configured — it won't crash the app.
 machine, install the Vercel CLI and run `vercel dev` instead — it emulates
 both the frontend and the function together, reading `ANTHROPIC_API_KEY`
 from a local `.env` file (see `.env.example`).
-
-## Works with zero internet at the scene
-
-Accidents often happen where there's no signal. So the QR code does not
-just point at a URL — it encodes the critical fields (blood group,
-allergies, conditions, medications, emergency contact) directly as plain
-text, with the link to the full app riding along at the end. This means:
-
-- **Offline**: any QR scanner — the phone's own camera, Google Lens, any
-  third-party app — shows the life-saving info immediately as text. No
-  page load, no server, no data connection required at all.
-- **Online**: if the responder's phone does have signal, the same code
-  also carries `https://.../emergency/<token>`, so they can tap through
-  to the full Emergency Mode — live location sharing, nearby hospitals,
-  one-tap 112 dial, and the AI report summary.
-
-This is why the QR looks a bit denser than a typical "just a link" QR —
-it's carrying the actual data, which is the whole point.
 
 ## Important limitation — read before demoing
 
