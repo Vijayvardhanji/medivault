@@ -6,6 +6,40 @@ then scan a QR → see verified blood group, allergies, conditions,
 medications, and emergency contact — no login needed for the responder.
 Full profile management stays behind your own sign-in.
 
+## Workflow — how a user moves through the app
+
+```mermaid
+flowchart TD
+    A[New user opens app] --> B[Create your MediVault ID<br/>3-step signup]
+    B --> B1[Step 1: Account<br/>name, email, phone, password]
+    B1 --> B2[Step 2: Medical details<br/>blood group, allergies,<br/>conditions, medications]
+    B2 --> B3[Step 3: Optional report upload<br/>+ AI summary]
+    B3 --> C[Dashboard]
+    C --> D[Add family member profiles]
+    D --> C
+    C --> E[Open a profile]
+    E --> F[Real QR code generated<br/>encodes data + emergency link]
+
+    G[Returning user opens app] --> H[Sign in<br/>account persists in this browser]
+    H --> C
+
+    F --> I{Responder scans QR<br/>at the scene}
+    I -->|No signal| J[Phone's camera / any scanner<br/>shows blood group, allergies,<br/>conditions, meds, contact<br/>as plain text — instantly]
+    I -->|Has signal| K[Taps through to<br/>Emergency Mode webpage]
+    K --> L[Live location sharing]
+    K --> M[Nearby hospitals]
+    K --> N[One-tap 112 dial]
+    K --> O[AI report summary]
+```
+
+**In short:**
+1. **Sign up once** → fill your own + family medical details → optionally upload a report for an AI summary.
+2. **Every profile gets a QR code** the moment it's created — no extra step.
+3. **At the scene**, anyone can scan that QR:
+   - **No internet needed** — the critical fields are encoded directly in the QR as text, so any camera or scanner shows them immediately.
+   - **If the responder's phone has signal**, the same QR also opens the full Emergency Mode page — live location, nearby hospitals, one-tap emergency dialing, and the AI summary.
+4. **Managing profiles** (editing details, adding family members, viewing the AI summary again) always stays behind your own sign-in — only the emergency snapshot is public.
+
 ## Run locally
 
 ```
