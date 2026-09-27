@@ -80,4 +80,23 @@ Return ONLY plain text, no headings or markdown, in this exact shape:
     try {
       apiRes = await callGemini();
     } catch (e) {
-      res.status(e.status
+      res.status(e.status || 500).json({ error: `Gemini API error: ${e.message}` });
+      return;
+    }
+
+    const json = await apiRes.json();
+    const summary = (json.candidates?.[0]?.content?.parts || [])
+      .map((part) => part.text || "")
+      .join("\n")
+      .trim();
+
+    if (!summary) {
+      res.status(500).json({ error: "Gemini returned an empty response." });
+      return;
+    }
+
+    res.status(200).json({ summary });
+  } catch (e) {
+    res.status(500).json({ error: e.message || "Unknown server error" });
+  }
+}
