@@ -35,44 +35,49 @@ Return ONLY plain text, no headings or markdown, in this exact shape:
 - then, on its own final line, exactly: For clinician verification — not a diagnosis.`;
 
     const model = "gemini-3.8-flash";
-    const apiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { inline_data: { mime_type: mediaType, data } },
-                { text: prompt },
+
+    // Gemini sometimes returns a transient 503 ("model overloaded"). Retry a
+    // few times with a short backoff before giving up, so a busy moment on
+    // Google's side doesn't surface as a hard failure to the user.
+    async function callGemini() {
+      const maxAttempts = 3;
+      let lastErrText = "";
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const apiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { inline_data: { mime_type: mediaType, data } },
+                    { text: prompt },
+                  ],
+                },
               ],
-            },
-          ],
-          generationConfig: { maxOutputTokens: 400 },
-        }),
+              generationConfig: { maxOutputTokens: 400 },
+            }),
+          }
+        );
+
+        if (apiRes.ok) return apiRes;
+
+        lastErrText = await apiRes.text();
+        const retryable = apiRes.status === 503 || apiRes.status === 429;
+        if (!retryable || attempt === maxAttempts) {
+          const err = new Error(lastErrText);
+          err.status = apiRes.status;
+          throw err;
+        }
+        // Backoff: ~1s, then ~2s before the next attempt.
+        await new Promise((r) => setTimeout(r, attempt * 1000));
       }
-    );
-
-    if (!apiRes.ok) {
-      const errText = await apiRes.text();
-      res.status(apiRes.status).json({ error: `Gemini API error: ${errText}` });
-      return;
     }
 
-    const json = await apiRes.json();
-    const summary = (json.candidates?.[0]?.content?.parts || [])
-      .map((part) => part.text || "")
-      .join("\n")
-      .trim();
-
-    if (!summary) {
-      res.status(500).json({ error: "Gemini returned an empty response." });
-      return;
-    }
-
-    res.status(200).json({ summary });
-  } catch (e) {
-    res.status(500).json({ error: e.message || "Unknown server error" });
-  }
-}
+    let apiRes;
+    try {
+      apiRes = await callGemini();
+    } catch (e) {
+      res.status(e.status
