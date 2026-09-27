@@ -34,7 +34,7 @@ Return ONLY plain text, no headings or markdown, in this exact shape:
 - 2 to 4 short lines of summary
 - then, on its own final line, exactly: For clinician verification — not a diagnosis.`;
 
-    const model = "gemini-2.0-flash";
+    const model = "gemini-3.8-flash";
     const apiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
