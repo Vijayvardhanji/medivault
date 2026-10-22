@@ -4,21 +4,10 @@ import {
   ShieldCheck, Phone, MapPin, Bell, Building2, Droplet, Pill,
   AlertTriangle, X, Plus, ArrowLeft, ArrowRight, LogOut, UploadCloud,
   FileText, Sparkles, ExternalLink, Loader2, CheckCircle2, WifiOff,
-  Eye, EyeOff, Pencil, Trash2, Check,
+  Eye, EyeOff, Pencil, Trash2, Check, QrCode, UsersRound,
 } from "lucide-react";
 
-/* ---------------------------------------------------------------
-   MediVault
-   Real signup + login (this device/browser is the account), editable
-   family profiles, offline-readable QR Emergency ID, Emergency Mode,
-   and a document → AI summary pipeline. Installable on Android/iOS
-   as a home-screen app (see public/manifest.json).
 
-   Storage note: the account and profiles live in this browser's
-   localStorage. That's real and persistent for the person using this
-   phone/browser — but it does not sync across devices. A shared
-   backend + database is the natural next step for that. See README.
------------------------------------------------------------------ */
 
 const TOKENS = {
   ink: "#0F2A2E",
@@ -715,85 +704,161 @@ function SignupWizard({ onComplete, onSwitchToLogin }) {
   };
 
   return (
-    <div style={{ maxWidth: 440, margin: "20px auto 0" }}>
-      <div style={{ textAlign: "center", marginBottom: 6 }}>
-        <div style={{ fontFamily: serif, fontSize: 24, color: TOKENS.ink }}>Create your MediVault ID</div>
-        <p style={{ fontSize: 13.5, color: TOKENS.muted, marginTop: 6 }}>
-          {step === 0 && "Step 1 of 3 — your account"}
-          {step === 1 && "Step 2 of 3 — your medical details"}
-          {step === 2 && "Step 3 of 3 — upload a report (optional)"}
+<div className="mv-auth-layout">
+  <aside className="mv-auth-aside">
+    <div className="mv-auth-ambient" aria-hidden="true">
+      <span className="mv-ambient-orb mv-orb-one" />
+      <span className="mv-ambient-orb mv-orb-two" />
+      <span className="mv-ambient-orb mv-orb-three" />
+      <span className="mv-ambient-particle mv-particle-one">✦</span>
+      <span className="mv-ambient-particle mv-particle-two">✧</span>
+      <span className="mv-ambient-particle mv-particle-three">✦</span>
+
+
+      <span className="mv-floating-light mv-light-one">✦</span>
+      <span className="mv-floating-light mv-light-two">✧</span>
+
+    </div>
+
+    <div className="mv-auth-eyebrow">
+
+        <h1 className="mv-auth-title">
+          Your health story,
+          <br />
+          <span>always within reach.</span>
+        </h1>
+    </div>
+        <p className="mv-auth-description">
+          Keep your essential medical information organised and accessible
+          when you or your family need it most.
         </p>
-      </div>
-      <StepDots step={step} total={3} />
 
-      <div style={{ background: TOKENS.panel, border: `1px solid ${TOKENS.line}`, borderRadius: 18, padding: 24 }}>
-        {step === 0 && (
-          <>
-            <LabeledInput label="Full name" placeholder="Your full name" value={account.fullName} onChange={setAccField("fullName")} error={accountErrors.fullName} />
-            <LabeledInput label="Email" type="email" placeholder="name@example.com" value={account.email} onChange={setAccField("email")} error={accountErrors.email} />
-            <LabeledInput label="Phone number" placeholder="+91 XXXXX XXXXX" value={account.phone} onChange={setAccField("phone")} error={accountErrors.phone} />
-            <PasswordInput label="Password" placeholder="At least 6 characters" value={account.password} onChange={setAccField("password")} error={accountErrors.password} />
-            <PasswordInput label="Confirm password" placeholder="Re-enter your password" value={account.confirm} onChange={setAccField("confirm")} error={accountErrors.confirm} />
-          </>
-        )}
-
-        {step === 1 && (
-          <>
-            <p style={{ fontSize: 12.5, color: TOKENS.muted, marginBottom: 14, lineHeight: 1.5 }}>
-              This becomes your own Emergency ID — the one a responder sees if you&rsquo;re ever the
-              one who can&rsquo;t speak for yourself.
-            </p>
-            <MemberFieldsForm form={memberForm} setForm={setMemberForm} showRelation={false} />
-          </>
-        )}
-
-        {step === 2 && (
-          <>
-            <p style={{ fontSize: 12.5, color: TOKENS.muted, marginBottom: 14, lineHeight: 1.5 }}>
-              Upload a medical report and the AI will write a short emergency summary onto your
-              ID — past conditions, anything a responder should know. You can skip this and add
-              it later from your dashboard.
-            </p>
-            <label style={{ display: "flex", alignItems: "center", gap: 10, border: `1.5px dashed ${TOKENS.line}`, borderRadius: 10, padding: "14px 16px", cursor: "pointer", marginBottom: 12 }}>
-              <UploadCloud size={18} color={TOKENS.teal} />
-              <span style={{ fontSize: 13.5, color: file ? TOKENS.ink : TOKENS.muted, fontWeight: file ? 600 : 400 }}>
-                {file ? file.name : "Choose a report (JPG, PNG or PDF)"}
-              </span>
-              <input type="file" accept="image/*,application/pdf" style={{ display: "none" }} onChange={(e) => { setFile(e.target.files?.[0] || null); setUploadStatus("idle"); }} />
-            </label>
-            {file && uploadStatus !== "done" && (
-              <Button full variant="subtle" icon={uploadStatus === "reading" || uploadStatus === "summarizing" ? Loader2 : Sparkles}
-                disabled={uploadStatus === "reading" || uploadStatus === "summarizing"} onClick={handleUploadSummary} style={{ marginBottom: 12 }}>
-                {uploadStatus === "reading" ? "Reading file…" : uploadStatus === "summarizing" ? "Summarizing…" : "Generate AI summary now"}
-              </Button>
-            )}
-            {uploadStatus === "error" && (
-              <div style={{ background: TOKENS.coralSoft, color: TOKENS.coral, borderRadius: 10, padding: 12, fontSize: 12.5, marginBottom: 12, lineHeight: 1.5 }}>{uploadError}</div>
-            )}
-            {uploadStatus === "done" && (
-              <div style={{ background: TOKENS.tealSoft, borderRadius: 10, padding: 12, fontSize: 12.5, color: TOKENS.tealDeep, marginBottom: 12, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
-                <div style={{ fontWeight: 700, marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}><CheckCircle2 size={14} /> Summary ready</div>
-                {pendingSummary}
-              </div>
-            )}
-          </>
-        )}
-
-        {submitError && (
-          <div style={{ background: TOKENS.coralSoft, color: TOKENS.coral, borderRadius: 10, padding: 12, fontSize: 12.5, marginBottom: 12 }}>{submitError}</div>
-        )}
-
-        <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
-          {step > 0 && <Button variant="ghost" icon={ArrowLeft} onClick={() => setStep((s) => s - 1)}>Back</Button>}
-          {step < 2 && <Button full icon={ArrowRight} onClick={handleNext}>Continue</Button>}
-          {step === 2 && <Button full icon={submitting ? Loader2 : Check} disabled={submitting} onClick={finish}>{submitting ? "Creating your ID…" : "Finish & go to dashboard"}</Button>}
+        <div className="mv-auth-benefits">
+          <div className="mv-auth-benefit">
+            <span className="mv-auth-benefit-icon"><ShieldCheck size={18} /></span>
+            <div>
+              <strong>Your medical identity</strong>
+              <p>Keep important health details together.</p>
+            </div>
+          </div>
+          <div className="mv-auth-benefit">
+            <span className="mv-auth-benefit-icon"><QrCode size={18} /></span>
+            <div>
+              <strong>Emergency-ready information</strong>
+              <p>Make essential details easier to access.</p>
+            </div>
+          </div>
+          <div className="mv-auth-benefit">
+            <span className="mv-auth-benefit-icon"><UsersRound size={18} /></span>
+            <div>
+              <strong>Care for your family</strong>
+              <p>Organise profiles in one place.</p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div style={{ textAlign: "center", marginTop: 16, fontSize: 13, color: TOKENS.muted }}>
-        Already have a MediVault ID on this device?{" "}
-        <button onClick={onSwitchToLogin} style={{ ...backBtnStyle, display: "inline" }}>Sign in</button>
-      </div>
+        <div className="mv-auth-note">
+          <span className="mv-auth-note-dot" />
+          Designed to keep essential health details organised.
+        </div>
+      </aside>
+
+      <section className="mv-auth-form-panel">
+        <div className="mv-auth-heading">
+          <div className="mv-auth-kicker">STEP {step + 1} OF 3</div>
+          <h2>
+            {step === 0 ? "Create your account" : step === 1 ? "Your medical profile" : "Add your medical report"}
+          </h2>
+          <p>
+            {step === 0
+              ? "Start building your personal health identity."
+              : step === 1
+              ? "Add the details that matter in an emergency."
+              : "Add a report now, or do this later."}
+          </p>
+        </div>
+
+        <div className="mv-auth-progress" aria-label={`Step ${step + 1} of 3`}>
+          {[0, 1, 2].map((n) => (
+            <div key={n} className={`mv-auth-progress-step ${n <= step ? "is-active" : ""}`} />
+          ))}
+        </div>
+
+        <div className="mv-auth-form">
+          {step === 0 && (
+            <>
+              <LabeledInput label="Full name" placeholder="Enter your full name" autoComplete="name" value={account.fullName} onChange={setAccField("fullName")} error={accountErrors.fullName} />
+              <LabeledInput label="Email address" type="email" placeholder="you@example.com" autoComplete="email" value={account.email} onChange={setAccField("email")} error={accountErrors.email} />
+              <LabeledInput label="Phone number" type="tel" placeholder="+91 XXXXX XXXXX" autoComplete="tel" value={account.phone} onChange={setAccField("phone")} error={accountErrors.phone} />
+              <PasswordInput label="Create password" placeholder="At least 6 characters" value={account.password} onChange={setAccField("password")} error={accountErrors.password} />
+              <PasswordInput label="Confirm password" placeholder="Enter your password again" value={account.confirm} onChange={setAccField("confirm")} error={accountErrors.confirm} />
+            </>
+          )}
+
+          {step === 1 && (
+            <>
+              <p className="mv-auth-helper">
+                These details form your Emergency ID. Enter accurate information and only include details you are comfortable storing in this browser.
+              </p>
+              <MemberFieldsForm form={memberForm} setForm={setMemberForm} showRelation={false} />
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <p className="mv-auth-helper">
+                Upload a medical report to request an emergency summary. This is optional — you can skip it and add a report later.
+              </p>
+              <label className="mv-auth-upload">
+                <span className="mv-auth-upload-icon"><UploadCloud size={22} /></span>
+                <span className="mv-auth-upload-copy">
+                  <strong>{file ? file.name : "Choose a medical report"}</strong>
+                  <span>JPG, PNG or PDF</span>
+                </span>
+                <input type="file" accept="image/*,application/pdf" onChange={(e) => { setFile(e.target.files?.[0] || null); setUploadStatus("idle"); setUploadError(""); }} />
+              </label>
+
+              {file && uploadStatus !== "done" && (
+                <Button full variant="subtle" icon={uploadStatus === "reading" || uploadStatus === "summarizing" ? Loader2 : Sparkles}
+                  disabled={uploadStatus === "reading" || uploadStatus === "summarizing"} onClick={handleUploadSummary} style={{ marginBottom: 12 }}>
+                  {uploadStatus === "reading" ? "Reading file…" : uploadStatus === "summarizing" ? "Preparing summary…" : "Generate AI summary"}
+                </Button>
+              )}
+
+              {uploadStatus === "error" && <div className="mv-auth-error" role="alert">{uploadError}</div>}
+              {uploadStatus === "done" && (
+                <div className="mv-auth-success">
+                  <CheckCircle2 size={17} />
+                  <span>Summary ready<span className="mv-auth-summary">{pendingSummary}</span></span>
+                </div>
+              )}
+            </>
+          )}
+
+          {submitError && <div className="mv-auth-error" role="alert">{submitError}</div>}
+
+          <div className="mv-auth-actions">
+            {step > 0 && <Button variant="ghost" icon={ArrowLeft} onClick={() => setStep((s) => s - 1)}>Back</Button>}
+            {step < 2 && <Button full icon={ArrowRight} onClick={handleNext}>Continue</Button>}
+            {step === 2 && <Button full icon={submitting ? Loader2 : Check} disabled={submitting} onClick={finish}>{submitting ? "Creating your ID…" : "Create my MediVault ID"}</Button>}
+          </div>
+
+          {step === 2 && (
+            <button type="button" className="mv-auth-skip" disabled={submitting} onClick={finish}>
+              Skip report and finish setup
+            </button>
+          )}
+        </div>
+
+        <div className="mv-auth-signin">
+          Already have an account?{" "}
+          <button type="button" onClick={onSwitchToLogin}>Sign in</button>
+        </div>
+        <div className="mv-auth-privacy">
+          <ShieldCheck size={14} />
+          <span>Account and profiles are currently stored in this browser only.</span>
+        </div>
+      </section>
     </div>
   );
 }
@@ -828,11 +893,25 @@ function LoginScreen({ onLoggedIn, onSwitchToSignup }) {
   return (
     <div style={{ maxWidth: 380, margin: "40px auto 0" }}>
       <div style={{ textAlign: "center", marginBottom: 24 }}>
-        <div style={{ fontFamily: serif, fontSize: 26, marginBottom: 8 }}>Welcome back</div>
-        <p style={{ fontSize: 14, color: TOKENS.muted, lineHeight: 1.6 }}>
-          Sign in to your MediVault ID on this device.
-        </p>
+
+<div className="mv-login-heading">
+  <span className="mv-login-eyebrow">
+    <ShieldCheck size={14} />
+    YOUR HEALTH, IN SAFE HANDS
+  </span>
+
+  <h1 className="mv-login-title">
+    Welcome back,
+    <span> your health matters.</span>
+  </h1>
+
+  <p className="mv-login-description">
+    Sign in to securely access your medical identity
+    and the health details that matter most.
+  </p>
+</div>
       </div>
+
       <LabeledInput label="Email" type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
       <PasswordInput label="Password" placeholder="Your password" value={password} onChange={(e) => setPassword(e.target.value)} />
       {error && <div style={{ background: TOKENS.coralSoft, color: TOKENS.coral, borderRadius: 10, padding: 12, fontSize: 12.5, marginBottom: 14, lineHeight: 1.5 }}>{error}</div>}
@@ -903,7 +982,7 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "100%", background: TOKENS.paper, fontFamily: sans, color: TOKENS.ink }}>
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "24px 18px 60px" }}>
+      <div className="mv-app-container" style={{ maxWidth: loggedIn ? 760 : 1120, margin: "0 auto", padding: "24px 18px 60px" }}>
         <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 26 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 34, height: 34, borderRadius: 9, background: TOKENS.ink, color: TOKENS.gold, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -974,4 +1053,13 @@ export default function App() {
       </div>
     </div>
   );
+}
+
+
+
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
 }
